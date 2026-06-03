@@ -1,0 +1,9 @@
+*.jpg
+*.jpeg
+*.pth
+*.pt
+*.zip
+
+data/
+Models/
+screenShots/
