@@ -1,4 +1,4 @@
-import torch,os,random,json
+import torch,os,random,json,shutil
 from torchinfo import summary
 from torch import nn
 from pathlib import Path
@@ -11,6 +11,9 @@ from typing import List, Dict
 from going_modular import data_setup, engine, plots, predictions, utils
 from PIL import Image
 import pandas as pd
+from typing import Tuple, Dict, List
+import gradio as gr
+
 
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
 EFFNET_NAME = 'EffnetB2_model_deploy.pth'
@@ -280,6 +283,7 @@ print(pd.DataFrame(data=(df.set_index('model').loc['ViT16'] / df.set_index('mode
                    columns=['ViT to EffNetB2 ratios']).T)
 print('**************************************************************************************')
 
+
 fig,ax = plt.subplots(figsize=(12,8))
 scatter = ax.scatter(data=df,
                      x='time_per_pred',
@@ -302,4 +306,78 @@ model_size_legend = ax.legend(handles,
                               loc='lower left',
                               title='Model size (MB)')
 
-plt.show()
+# plt.show()
+
+
+class_names = ['pizza','steak','sushi']
+effnet_weights = models.EfficientNet_B2_Weights.DEFAULT
+effnet_transform = effnet_weights.transforms()
+effnetB2 = effnetB2.to('cpu')
+def prediction(img) -> Tuple[Dict,float]:
+    start_timer = timer()
+    transdformed_img = effnet_transform(img).unsqueeze(0) #adding batch dim
+    effnetB2.eval()
+    with torch.inference_mode():
+        pred_probs = torch.softmax(effnetB2(transdformed_img),dim=1)
+    pred_labels_and_probs = {class_names[i]: float(pred_probs[0][i]) for i in range(len(class_names))}
+    end_timer = timer()
+    pred_time = round(end_timer - start_timer, 4)
+    return pred_labels_and_probs,pred_time
+image_path=f'D:/DL_PyTorch/Custom_dataset_pizza_steak_sushi/test5.jpg'
+img = Image.open(image_path)
+print(prediction(img))
+
+example_list = [['D:/DL_PyTorch/Custom_dataset_pizza_steak_sushi/test1.jpg'],['D:/DL_PyTorch/Custom_dataset_pizza_steak_sushi/test5.jpg'],['D:/DL_PyTorch/Custom_dataset_pizza_steak_sushi/test3.jpg']]
+
+title = 'FoodVision Mini 🍕🥩🍣'
+description = 'An EfficientNetB2 feature extractor computer vision model to classify images as pizza,steak or sushi'
+article = 'Created at Pytorch Model Deployment section'
+
+ask = input('Wanna see it in temporary link?')
+if ask =='y':
+    demo = gr.Interface(fn=prediction,
+                        inputs=gr.Image(type='pil'),
+                        outputs=[gr.Label(num_top_classes=3,label='Predictions'),
+                                gr.Number(label='Prediction time (s)')],
+                        examples=example_list,
+                        title=title,
+                        description=description,
+                        article=article)
+    demo.launch(debug=False,
+                share=True)
+
+# Turning it into a deployalble app
+    # Create a demos folder to store our FoodVision app files
+ask = input('Wanna rewrite demos/foodvision_mini/ folder again?')
+if ask == 'y':
+    foodvision_mini_demo_path = Path('demos/foodvision_mini/')
+    if foodvision_mini_demo_path.exists():
+        shutil.rmtree(foodvision_mini_demo_path)
+        foodvision_mini_demo_path.mkdir(parents=True,
+                                        exist_ok=True)
+    else:
+        foodvision_mini_demo_path.mkdir(parents=True,
+                                        exist_ok=True)
+    foodvision_mini_examples_path = foodvision_mini_demo_path / 'examples'
+    foodvision_mini_examples_path.mkdir(parents=True, exist_ok=True)
+    foodvision_mini_examples = [Path('D:/DL_PyTorch/Custom_dataset_pizza_steak_sushi/test1.jpg'),
+                                Path('D:/DL_PyTorch/Custom_dataset_pizza_steak_sushi/test5.jpg'),
+                                Path('D:/DL_PyTorch/Custom_dataset_pizza_steak_sushi/test3.jpg')]
+    for example in foodvision_mini_examples:
+        destination = foodvision_mini_examples_path / example.name
+    shutil.copy2(src=example,
+                 dst=destination)
+    
+    example_list = [['examples/' + example] for example in os.listdir(foodvision_mini_examples_path)]
+    
+    effnetb2_foodvision_mini_model_path = 'Models/EffnetB2_model_deploy.pth'
+    effnetb2_foodvision_mini_model_destination = foodvision_mini_demo_path / effnetb2_foodvision_mini_model_path.split('/')[1]
+    
+    try:
+        if not effnetb2_foodvision_mini_model_destination.exists():
+            print(f'[INFO] Attempting to move {effnetb2_foodvision_mini_model_path} to {effnetb2_foodvision_mini_model_destination}')
+            shutil.copy2(src=effnetb2_foodvision_mini_model_path,
+                        dst=effnetb2_foodvision_mini_model_destination)
+            print(f'[INFO] Model move complete')
+    except :
+        print(f"[INFO] Probably model has been moved or doesn't exist")

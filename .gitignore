@@ -7,3 +7,5 @@
 data/
 Models/
 screenShots/
+.gradio/
+.idea/

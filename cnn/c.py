@@ -10,3 +10,5 @@
 # print("دیتاست با موفقیت دانلود شد!")
 
 
+import gradio
+print(gradio.__version__)
