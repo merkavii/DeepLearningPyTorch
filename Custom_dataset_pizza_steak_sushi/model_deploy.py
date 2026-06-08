@@ -321,11 +321,11 @@ def prediction(img) -> Tuple[Dict,float]:
     end_timer = timer()
     pred_time = round(end_timer - start_timer, 4)
     return pred_labels_and_probs,pred_time
-image_path=f'D:/DL_PyTorch/Custom_dataset_pizza_steak_sushi/test5.jpg'
+image_path=f'D:/DL_PyTorch/Custom_dataset_pizza_steak_sushi/test5.png'
 img = Image.open(image_path)
 print(prediction(img))
 
-example_list = [['D:/DL_PyTorch/Custom_dataset_pizza_steak_sushi/test1.jpg'],['D:/DL_PyTorch/Custom_dataset_pizza_steak_sushi/test5.jpg'],['D:/DL_PyTorch/Custom_dataset_pizza_steak_sushi/test3.jpg']]
+example_list = [['D:/DL_PyTorch/Custom_dataset_pizza_steak_sushi/test1.png'],['D:/DL_PyTorch/Custom_dataset_pizza_steak_sushi/test5.png'],['D:/DL_PyTorch/Custom_dataset_pizza_steak_sushi/test3.png']]
 
 title = 'FoodVision Mini 🍕🥩🍣'
 description = 'An EfficientNetB2 feature extractor computer vision model to classify images as pizza,steak or sushi'
@@ -358,9 +358,9 @@ if ask == 'y':
                                         exist_ok=True)
     foodvision_mini_examples_path = foodvision_mini_demo_path / 'examples'
     foodvision_mini_examples_path.mkdir(parents=True, exist_ok=True)
-    foodvision_mini_examples = [Path('D:/DL_PyTorch/Custom_dataset_pizza_steak_sushi/test1.jpg'),
-                                Path('D:/DL_PyTorch/Custom_dataset_pizza_steak_sushi/test5.jpg'),
-                                Path('D:/DL_PyTorch/Custom_dataset_pizza_steak_sushi/test3.jpg')]
+    foodvision_mini_examples = [Path('D:/DL_PyTorch/Custom_dataset_pizza_steak_sushi/test1.png'),
+                                Path('D:/DL_PyTorch/Custom_dataset_pizza_steak_sushi/test5.png'),
+                                Path('D:/DL_PyTorch/Custom_dataset_pizza_steak_sushi/test3.png')]
     for example in foodvision_mini_examples:
         destination = foodvision_mini_examples_path / example.name
         shutil.copy2(src=example,
