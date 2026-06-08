@@ -1,10 +1,8 @@
-import torch,os,random,json,shutil
-from torchinfo import summary
+import torch,os,json,shutil
 from torch import nn
 from pathlib import Path
-import numpy as np
 import matplotlib.pyplot as plt
-from torchvision import transforms, models
+from torchvision import models
 from helper_functions import *
 from timeit import default_timer as timer
 from typing import List, Dict
@@ -365,8 +363,8 @@ if ask == 'y':
                                 Path('D:/DL_PyTorch/Custom_dataset_pizza_steak_sushi/test3.jpg')]
     for example in foodvision_mini_examples:
         destination = foodvision_mini_examples_path / example.name
-    shutil.copy2(src=example,
-                 dst=destination)
+        shutil.copy2(src=example,
+                    dst=destination)
     
     example_list = [['examples/' + example] for example in os.listdir(foodvision_mini_examples_path)]
     
@@ -381,3 +379,4 @@ if ask == 'y':
             print(f'[INFO] Model move complete')
     except :
         print(f"[INFO] Probably model has been moved or doesn't exist")
+        

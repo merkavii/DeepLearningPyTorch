@@ -10,6 +10,8 @@
 
 import torch,torchvision
 from torchvision import transforms, models
+import gradio
+print(gradio.__version__)
 
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
 print(device)
