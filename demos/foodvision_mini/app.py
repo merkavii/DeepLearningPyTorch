@@ -11,20 +11,26 @@ effnetb2, effnetb2_transforms = create_effnetb2()
 effnetb2.load_state_dict(torch.load(f='EffnetB2_model_deploy.pth',
                                     map_location=torch.device('cpu')))
 
-def prediction(img,
-               model:nn.Module,
-               transform:torchvision.transforms,
-               class_names:List[str]) -> Tuple[Dict,float]:
+def prediction(img):
     start_timer = timer()
-    transdformed_img = transform(img).unsqueeze(0) #adding batch dim
-    model.eval()
-    with torch.inference_mode():
-        pred_probs = torch.softmax(model(transdformed_img),dim=1)
-    pred_labels_and_probs = {class_names[i]: float(pred_probs[0][i]) for i in range(len(class_names))}
-    end_timer = timer()
-    pred_time = round(end_timer - start_timer, 4)
-    return pred_labels_and_probs,pred_time
 
+    transformed_img = effnetb2_transforms(img).unsqueeze(0)
+
+    effnetb2.eval()
+    with torch.inference_mode():
+        pred_probs = torch.softmax(
+            effnetb2(transformed_img),
+            dim=1
+        )
+
+    pred_labels_and_probs = {
+        class_names[i]: float(pred_probs[0][i])
+        for i in range(len(class_names))
+    }
+
+    pred_time = round(timer() - start_timer, 4)
+
+    return pred_labels_and_probs, pred_time
 
 example_list = [['examples/' + example] for example in os.listdir('examples')]
     
@@ -39,6 +45,4 @@ demo = gr.Interface(fn=prediction,
                     title=title,
                     description=description,
                     article=article)
-demo.launch(debug=False,
-            share=True)
-
+demo.launch(debug=False)

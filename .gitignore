@@ -9,3 +9,6 @@ Models/
 screenShots/
 .gradio/
 .idea/
+cnn/a.py
+cnn/b.py
+cnn/c.py
