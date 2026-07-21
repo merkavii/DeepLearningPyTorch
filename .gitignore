@@ -13,3 +13,5 @@ cnn/a.py
 cnn/b.py
 cnn/c.py
 mlflow.db
+runs/
+mlruns/
